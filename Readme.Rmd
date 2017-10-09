@@ -1,0 +1,10 @@
+
+# 200A Evolution Assignments
+
+### Lab1
+* Exercise1.R - Lineage through time plots
+* Exercise2.R - Fitting pure birth and birth-death models to trees
+* Exercise3.R - The gamma statistic and incomplete sampling
+* Exercise4.R - Homework exercises
+* etheostoma_percina_chrono.tre - Data for lab exercises
+* homalops.phy - Data for homework exercises
