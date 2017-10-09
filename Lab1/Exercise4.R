@@ -2,7 +2,7 @@
 #Author: "Emma Fox (eafox@ucla.edu)"
 
 # SET WD #
-#setwd("UCLA/Evo/Lab1/")
+setwd("UCLA/Evo/Lab1/")
 #remove if using in other location
 
 # PACKAGES #
@@ -86,20 +86,22 @@ bd(fitbd)
 
 # Birth Rate: 0.0684 
 # Death Rate: 0.0000
+# The species are all still extant so none have gone extinct
 
 ##############
 # QUESTION 5 #
 ##############
 #(1) Clade description and source
-# Number of Tips:
-# Number of Species in Clades:
+# Number of Tips: 46
+# (removed some species to simulate incomplete sampling)
+# Number of Species in Clades: 50
 # Citation:
 
-# Perissodactyla (odd-toed ungulates and cetaceans) data set downloaded from:
-# http://10ktrees.nunn-lab.org/Perissodactyla/dataset.html
+# Mustilidae data set downloaded from:
+# http://10ktrees.nunn-lab.org/Carnivora/downloadTrees.php
 
 # Load tree
-prac.tree<-read.tree("")
+prac.tree<-read.nexus("consensusTree_10kTrees_Carnivora_Version1.nex")
 # Check tree is fully bifurcated
 prac.tree
 # Looks to be! One more check...
@@ -112,8 +114,9 @@ fitbd <- birthdeath(prac.tree)
 fitbd
 #Print birth and death rates
 bd(fitbd)
-# Birth Rate:  
-# Death Rate: 
+# Birth Rate: 0.0769
+# Death Rate: 0.0000
+# Again, all species are extant
 
 #(3) Perform MCCR test and analyse
 # Run ltt and get observed gamma
@@ -122,12 +125,11 @@ prac.obj
 prac.gamma <- prac.obj$gamma
 prac.gamma
 # Simulate incomplete sampling
-age <- 22
-richness <- 34
+age <- 15
+richness <- 50
 pracbirth =  (log(richness) - log(2))/age
 pracbirth
-richness <- 216
-missing <- 15
+missing <- 4
 num_simulations<-200 
 # For loop to simulate populations 
 # COPIED FROM MATERIAL PROVIDED BY PROF. MIKE ALFARO
@@ -140,7 +142,7 @@ for(i in 1:num_simulations) {
 # Plot histogram of values and point to observed value
 hist(g1_null)
 arrows(prac.gamma, 40, prac.gamma, 0, col="red", lwd=2) 
-#seems to be well into the tails. Looks possibily significant
+#seems to be somewhat into the tails. Looks possibily significant
 # Generate p-value of observed gamma
 smallerNull<-g1_null<=prac.gamma
 count<-sum(smallerNull)
@@ -149,7 +151,9 @@ mccr_pval
 # p-val:
 
 # Interpratation 
-
+# The gamma value does seem to be significant compared to simulations 
+# suggesting a slight skew of the nodes towards the beginning of the species
+# which also suggests the rate of speciation declined over time
 
 
 

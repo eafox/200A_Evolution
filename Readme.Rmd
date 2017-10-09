@@ -8,3 +8,4 @@
 * Exercise4.R - Homework exercises
 * etheostoma_percina_chrono.tre - Data for lab exercises
 * homalops.phy - Data for homework exercises
+* consensusTree_10kTrees_Carnivora_Version1.nex - Data set found for homework
