@@ -1,0 +1,147 @@
+---
+title: "Phylogenetically Independent Constrasts"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##PACKAGES
+```{r}
+library(ape)
+library(phytools)
+```
+
+
+##CHALLENGE PROBLEM 1
+Fit a OLS (non-phylogenetic) regression model for y~x and a phylogenetic regression model using contrasts. What do you find? Why?  
+  
+OLS regression model:
+```{r}
+obj<-read.csv("pic-exercise-data.csv",row.names=1); head(obj)
+fit.ols<-lm(y~x,data=obj); fit.ols
+summary(fit.ols)
+plot(obj[,c("x","y")])
+abline(fit.ols,lwd=2,lty="dashed",col="red")
+```
+
+Phylogenetic regression model using contrasts:
+```{r}
+ex.tree<-read.tree("pic-exercise-tree.tre")
+x.data<-setNames(obj[,"x"],rownames(obj))
+y.data<-setNames(obj[,"y"],rownames(obj))
+pic.x<-pic(x.data,ex.tree) #categorize buccal length by phylogeny
+pic.y<-pic(y.data,ex.tree) #categorize gape width by phylogeny
+fit.pic<-lm(pic.y~pic.x+0) #fit linear model with phylogeny considered
+fit.pic
+```
+```{r}
+summary(fit.pic)
+```
+
+Plot linear model over scatterplot with phylogeny considered:
+```{r}
+plot(pic.x,pic.y,xlab="PICs for x",ylab="PICs for y")
+abline(fit.pic,lwd=2,lty="dashed",col="red")
+```
+
+We find that, without taking into account phylogentic history, x seems to have no effect on y. Once the tree is used to weight the points by relatedness, a linear relationship between x and y does emerge. Not taking into account phylogeny apparently can lead to making a type II error as well as the possibility in other situations of causing a type I error.
+
+##TUTORIAL
+####Linear Model Basics
+Fitting linear regressions to first gape width and buccal length. 
+View Data:
+```{r}
+obj<-read.csv("Centrarchidae.csv",row.names=1); head(obj)
+```
+
+Plot effect of buccal length on gape width
+```{r}
+plot(obj[,c("buccal.length","gape.width")])
+```
+
+Fit OLS regression model:
+```{r}
+fit.ols<-lm(gape.width~buccal.length,data=obj); fit.ols
+```
+```{r}
+summary(fit.ols)
+```
+
+Add OLS regression line to graph:
+```{r}
+plot(obj[,c("buccal.length","gape.width")])
+abline(fit.ols,lwd=2,lty="dashed",col="red")
+```
+
+Fit PIC to take into account phylogeny:
+```{r}
+cent.tree<-read.tree("Centrarchidae.tre")
+buccal.length<-setNames(obj[,"buccal.length"],rownames(obj))
+gape.width<-setNames(obj[,"gape.width"],rownames(obj))
+pic.bl<-pic(buccal.length,cent.tree) #categorize buccal length by phylogeny
+pic.gw<-pic(gape.width,cent.tree) #categorize gape width by phylogeny
+fit.pic<-lm(pic.gw~pic.bl+0) #fit linear model with phylogeny considered
+fit.pic
+```
+```{r}
+summary(fit.pic)
+```
+
+Plot linear model over scatterplot with phylogeny considered
+```{r}
+plot(pic.bl,pic.gw,xlab="PICs for buccal length",ylab="PICs for gape width")
+abline(fit.pic,lwd=2,lty="dashed",col="red")
+```
+
+####Simulating a Tree to Test PIC
+Simulate a coalescent tree:
+```{r}
+set.seed(21)
+## simulate a coalescent shaped tree
+tree<-rcoal(n=100)
+plotTree(tree,ftype="off")
+```
+
+Simulate uncorrelated Brownian evolution:
+```{r}
+x<-fastBM(tree) #simulate trait 1
+y<-fastBM(tree) #simulate trait 2
+par(mar=c(5.1,4.1,2.1,2.1)) #set plot dimensions
+plot(x,y)
+fit<-lm(y~x) #fit linear regression to data
+abline(fit,lwd=2,lty="dashed",col="red") #add lm line
+```
+
+Return descriptions of fit:
+```{r}
+fit
+```
+```{r}
+summary(fit)
+```
+```{r}
+anova(fit)
+```
+
+Observe that phylogeny can very easily cause a type I error. The close taxonomical relationship of the data points within the two clusters causes the traits to appear correlated even when they are not.  
+Visualize the relatedness of the data points in the scatterplot:
+```{r}
+phylomorphospace(tree,cbind(x,y),label="off",node.size=c(0.5,0.7))
+abline(fit,lwd=2,lty="dashed",col="red")
+```
+
+Use Felsenstein's algorithim to weight the contrasts between species:
+```{r}
+ix<-pic(x,tree)
+iy<-pic(y,tree)
+fit<-lm(iy~ix-1) ## we have to fit the model without an intercept term
+fit
+```
+```{r}
+summary(fit)
+```
+```{r}
+anova(fit)
+```

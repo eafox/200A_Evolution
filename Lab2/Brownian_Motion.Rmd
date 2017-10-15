@@ -1,0 +1,105 @@
+---
+title: "Brownian Motion"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+##LOAD PACKAGES
+```{r}
+library(phytools)
+```
+
+##HOMEWORK EXERCISE
+Load tree and calculate rates
+```{r}
+prac.tree<-read.nexus("../Lab1/consensusTree_10kTrees_Carnivora_Version1.nex") #load tree
+t<-15 # total time
+n<-50 # total taxa
+b<-(log(n)-log(2))/t #birth rate
+```
+
+Visualize tree:
+```{r}
+plotTree(prac.tree,mar=c(3.1,0.1,0.1,0.1))
+axis(1)
+```
+
+Simulate branches with Brownian Motion:
+```{r}
+sig2<-0.01
+x<-fastBM(prac.tree,sig2=sig2,internal=TRUE)
+phenogram(prac.tree,x,spread.labels=TRUE,spread.cost=c(1,0),spread.labels=TRUE,fsize = 0.25)
+```
+
+##TUTORIAL
+####Discrete Time: Single Simulation
+$\sigma^2$=0.01 for 100 generations
+
+```{r}
+t<-0:100 #time sequence
+sig2<-0.01
+x<-rnorm(n=length(t)-1,sd=sqrt(sig2)) #create a sequence of normally distributed numbers with a standard deviation of signma
+x<-c(0,cumsum(x)) #start vector x with 0 and then add each successive step to get the new position
+plot(t,x,type="l",ylim=c(-2,2)) #plot time versus step
+```
+
+####Discrete Time: Multiple Simulations
+Numvber of simulations: 100
+
+```{r}
+nsim<-100
+X<-matrix(rnorm(n=nsim*(length(t)-1),sd=sqrt(sig2)),nsim,length(t)-1) #create a matrix of simulation steps
+X<-cbind(rep(0,nsim),t(apply(X,1,cumsum))) #make the time steps a row in the matrix
+plot(t,X[1,],xlab="time",ylab="phenotype",ylim=c(-2,2),type="l") #blank plot
+apply(X[2:nsim,],1,function(x,t) lines(t,x),t=t) #plot the steps for each simulation over time
+```
+
+####Discrete Time: Multiple Simulations, $\sigma^2$/2
+```{r}
+X<-matrix(rnorm(n=nsim*(length(t)-1),sd=sqrt(sig2/10)),nsim,length(t)-1)
+X<-cbind(rep(0,nsim),t(apply(X,1,cumsum)))
+plot(t,X[1,],xlab="time",ylab="phenotype",ylim=c(-2,2),type="l")
+apply(X[2:nsim,],1,function(x,t) lines(t,x),t=t)
+```
+
+####Brownian Motion Expected Variance
+The expected variance is $\sigma^2$ * time step.  
+This section plots the variance among simulations to confirm this assumption.
+```{r}
+nsim<-10000
+X<-matrix(rnorm(n=nsim*(length(t)-1),sd=sqrt(sig2)),nsim,length(t)-1)
+X<-cbind(rep(0,nsim),t(apply(X,1,cumsum)))
+v<-apply(X,2,var) #calculates the variance among simulations
+plot(t,v,type="l",xlab="time",ylab="variance among simulations")
+```
+
+Confirm the slope of the line is roughly equal to 1:
+```{r}
+var(X[,length(t)])
+```
+
+####Brownian Motion along Tree Branches
+Simulate using a 30 taxa tree with 100 time steps:
+```{r}
+t<-100 # total time
+n<-30 # total taxa
+b<-(log(n)-log(2))/t #birth rate
+tree<-pbtree(b=b,n=n,t=t)
+```
+
+Visualize tree:
+```{r}
+plotTree(tree,mar=c(3.1,0.1,0.1,0.1))
+axis(1)
+```
+
+Simulate branches with new branches offset to end point of source branch:
+```{r}
+## simulate Brownian evolution on a tree with fastBM
+x<-fastBM(tree,sig2=sig2,internal=TRUE)
+## visualize Brownian evolution on a tree
+phenogram(tree,x,spread.labels=TRUE,spread.cost=c(1,0))
+```
+
