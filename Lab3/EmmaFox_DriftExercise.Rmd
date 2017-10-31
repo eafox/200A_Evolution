@@ -1,0 +1,132 @@
+---
+title: "Drift Exercise"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Question 1
+The expected number of successes based on the formula from class would the be same as the initial propotion of successes. In other words, the proportion of successes is no *expected* to change between generations so the expected number of successes would be _10 * 0.01_ which is equal to 1.  
+Simulation:
+```{r}
+n<-100
+N<-50
+p<-0.1
+sum(rbinom(n,2*N,p))/(2*N)/n
+```
+The simulation 
+
+##Question 2
+```{r}
+n<-1 ; N<-50 ; p<-0.1
+T<-5
+L<-3
+
+driftFun<-function(T,L){
+  freqs<-matrix(nrow = T, ncol = L)
+  freqs[1,]<-rep(p,L)
+  for(i in 2:T){
+    for(j in 1:L){
+      freqs[i,j]<-rbinom(1,2*N,freqs[i-1,j])/(2*N)
+    }
+  }
+  return(freqs)
+}
+
+freqsNew<-driftFun(5,3) ; freqsNew
+```
+
+
+##Question 3
+```{r}
+n<-1 ; N<-100 ; p<-0.1
+T<-1000
+L<-10000
+freqs3<-driftFun(T,L)
+
+#(a)
+numDis<-sum(freqs3[T,] == 0) ; numDis
+probDis<-numDis/(L) ; probDis
+#(b)
+numFix<-sum(freqs3[T,] == 1) ; numFix
+probFix<-numFix/(L) ; probFix
+#(c)
+numNot<-(L)-numDis-numFix ; numNot
+probNot<-numNot/(L) ; probNot
+#(d)
+plot(1, type="n", xlab="Generation", ylab="Frequency", main = "N=100", xlim=c(0, T), ylim=c(0, 1))
+for (i in 1:100){
+  lines(freqs3[,i],type = "l",col=i)
+}
+```
+
+New simulation (p=0.6):
+```{r}
+n<-1 ; N<-100 ; p<-0.6
+T<-1000
+L<-10000
+freqs3b<-driftFun(T,L)
+#(e)
+numDis<-sum(freqs3b[T,] == 0) ; numDis
+probDis<-numDis/(L) ; probDis
+#(f)
+numFix<-sum(freqs3b[T,] == 1) ; numFix
+probFix<-numFix/(L) ; probFix
+#(g)
+numNot<-(L)-numDis-numFix ; numNot
+probNot<-numNot/(L) ; probNot
+```
+
+##Question 4
+```{r}
+n<-1 ; p<-0.1 ; T<-1000 ; L<-10000
+N<-10 ; freqs10<-driftFun(T,L)
+N<-500 ; freqs500<-driftFun(T,L)
+N<-1000 ; freqs1000<-driftFun(T,L)
+```
+
+
+##Question 5
+```{r}
+#(a)
+par(mfrow=c(2,2))
+plot(1, type="n", xlab="Generation", ylab="Frequency", main = "N=10", xlim=c(0, T), ylim=c(0, 1))
+for (i in 1:100){
+  lines(freqs10[,i],type = "l",col=i)
+}
+plot(1, type="n", xlab="Generation", ylab="Frequency", main = "N=500", xlim=c(0, T), ylim=c(0, 1))
+for (i in 1:100){
+  lines(freqs500[,i],type = "l",col=i)
+}
+plot(1, type="n", xlab="Generation", ylab="Frequency", main = "N=1000", xlim=c(0, T), ylim=c(0, 1))
+for (i in 1:100){
+  lines(freqs1000[,i],type = "l",col=i)
+}
+#(c)
+numFix10<-sum(freqs10[T,] == 1) ; numFix10
+probFix10<-numFix10/(L) ; probFix10
+numFix500<-sum(freqs500[T,] == 1) ; numFix500
+probFix500<-numFix500/(L) ; probFix500
+numFix1000<-sum(freqs1000[T,] == 1) ; numFix1000
+probFix1000<-numFix1000/(L) ; probFix1000
+```
+
+
+##Question 6
+
+
+##Question 7
+
+
+##Question 8
+
+
+##Question 9
+
+
+##Question 10
+
+
+##Question 11
